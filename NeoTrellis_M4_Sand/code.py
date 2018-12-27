@@ -29,6 +29,7 @@
 
 import math
 import random
+import audioio
 import board
 import busio
 import adafruit_trellism4
@@ -43,6 +44,10 @@ MAX_FPS = 10  # Maximum redraw rate, frames/second
 MAX_X = WIDTH * 256 - 1
 MAX_Y = HEIGHT * 256 - 1
 
+audio = audioio.AudioOut(board.A1)
+# https://soundcloud.com/djquestionmike/airhorn-wav
+airhorn_wave_file  = open("airhorn.wav", "rb")
+airhorn_wave = audioio.WaveFile(airhorn_wave_file)
 
 class Grain:
     """A simple struct to hold position and velocity information
@@ -146,6 +151,9 @@ while True:
     pressed = set(trellis.pressed_keys)
     for press in pressed - current_press:
         if press:
+            if audio.playing:
+                audio.stop()
+            audio.play(airhorn_wave)
             print("Pressed:", press)
             color = random.randint(1, 254)
             print("Color:", color)
@@ -283,3 +291,5 @@ while True:
         occupied_bits[newidx] = True
         g.x = newx
         g.y = newy
+
+airhorn_wave_file.close()
